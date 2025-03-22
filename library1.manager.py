@@ -6,7 +6,7 @@ import time
 import random
 import requests
 from datetime import datetime
-#from streamlit_lottie import st_lottie
+from streamlit_lottie import st_lottie
 # import plotly.express as px
 # import plotly.graph_objects as go
 
