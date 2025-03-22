@@ -1,16 +1,15 @@
 import streamlit as st
 import pandas as pd
 import json
-import streamlit as st
-import pandas as pd
-import json
 import os
 import time
-import datetime
-#import plotly.express as px
-#import plotly.graph_objects as go
-from streamlit_lottie import st_lottie
+import random
 import requests
+from datetime import datetime
+from streamlit_lottie import st_lottie
+# import plotly.express as px
+# import plotly.graph_objects as go
+
 
 # Set page configuration
 st.set_page_config(
