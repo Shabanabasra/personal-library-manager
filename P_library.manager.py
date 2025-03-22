@@ -3,7 +3,6 @@ import pandas as pd
 import json
 import os
 import time
-import random
 import datetime
 import plotly.express as px
 import plotly.graph_objects as go
@@ -25,7 +24,6 @@ st.markdown("""
         font-size: 3rem !important;
         color: #1E3A8A;
         font-weight: 700;
-        margin-bottom: 1rem;
         text-align: center;
         text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
     }
@@ -35,11 +33,11 @@ st.markdown("""
         font-weight: 600;
         margin-top: 1rem;
         margin-bottom: 1rem;
-    }     
+    }
     .success-message {
         padding: 1rem;
         background-color: #ECFDF5;
-        border-left: 5px solid #108981;
+        border-left: 5px solid #10B981;
         border-radius: 0.375rem;
     }
     .warning-message {
@@ -47,30 +45,6 @@ st.markdown("""
         background-color: #FEF3C7;
         border-left: 5px solid #F59E0B;
         border-radius: 0.375rem;
-    }
-    .book-card {
-        background-color: #F3F4F6;
-        border-radius: 0.5rem;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        border-left: 5px solid #3B82F6;
-        transition: transform 0.3s ease;
-    }
-    .read-badge {
-        background-color: #10B981;
-        color: white;
-        padding: 0.25rem 0.75rem;
-        border-radius: 1rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
-    .unread-badge {
-        background-color: #F87171;
-        color: white;
-        padding: 0.25rem 0.75rem;
-        border-radius: 1rem;
-        font-size: 0.875rem;
-        font-weight: 600;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -103,21 +77,16 @@ def load_library():
         if os.path.exists("library.json"):
             with open("library.json", "r") as file:
                 st.session_state.library = json.load(file)
-            return True
-        return False
     except Exception as e:
         st.error(f"Error loading library: {e}")
-        return False
 
 # Save library data
 def save_library():
     try:
         with open("library.json", "w") as file:
             json.dump(st.session_state.library, file)
-        return True
     except Exception as e:
         st.error(f"Error saving library: {e}")
-        return False
 
 # Add a book to library
 def add_book(title, author, publication_year, genre, read_status):
@@ -140,21 +109,6 @@ def remove_book(index):
         del st.session_state.library[index]
         save_library()
         st.session_state.book_removed = True
-        return True
-    return False
-
-# Search books
-def search_books(search_term, search_by):
-    search_term = search_term.lower()
-    results = []
-    for book in st.session_state.library:
-        if search_by == "Title" and search_term in book["title"].lower():
-            results.append(book)
-        elif search_by == "Author" and search_term in book["author"].lower():
-            results.append(book)
-        elif search_by == "Genre" and search_term in book["genre"].lower():
-            results.append(book)
-    st.session_state.search_results = results
 
 # Load library data on start
 load_library()
@@ -182,7 +136,7 @@ elif nav_options == "Library Statistics":
 
 st.markdown("<h1 class='main-header'>Personal Library Manager</h1>", unsafe_allow_html=True)
 
-# Handle different views
+# Add Book View
 if st.session_state.current_view == "add":
     st.markdown("<h2 class='sub_header'>Add a New Book 📚</h2>", unsafe_allow_html=True)
     with st.form(key="add_book_form"):
@@ -195,3 +149,28 @@ if st.session_state.current_view == "add":
         if submit_button and title and author:
             add_book(title, author, publication_year, genre, read_status == "Read")
             st.success("Book added successfully! 🎉")
+
+# View Library
+elif st.session_state.current_view == "library":
+    st.markdown("<h2 class='sub_header'>Your Library</h2>", unsafe_allow_html=True)
+    if not st.session_state.library:
+        st.markdown("<div class='warning-message'>Your library is empty. Add some books to get started!</div>", unsafe_allow_html=True)
+    else:
+        for i, book in enumerate(st.session_state.library):
+            st.markdown(f"""
+                <div class="book-card">
+                    <h3>{book["title"]}</h3>
+                    <p><strong>Author:</strong> {book["author"]}</p>
+                    <p><strong>Publication Year:</strong> {book["publication_year"]}</p>
+                    <p><strong>Genre:</strong> {book["genre"]}</p>
+                    <p><span class="{'read-badge' if book['read_status'] else 'unread-badge'}">{
+                        "Read" if book["read_status"] else "Unread"
+                    }</span></p>
+                </div>
+            """, unsafe_allow_html=True)
+            if st.button(f"Remove {book['title']}", key=f"remove_{i}"):
+                remove_book(i)
+                st.rerun()
+
+# Footer
+st.markdown("<br><br><center>© 2025 Personal Library Manager</center>", unsafe_allow_html=True)
